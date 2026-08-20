@@ -1,12 +1,9 @@
 {
   "name": "lladnaros.com",
-  "version": "1.0.0",
   "private": true,
-  "description": "Lladnaros — music-first carnival site. Layer 2 is the engine under the boards.",
-  "license": "UNLICENSED",
+  "description": "Lladnaros carnival — Weaponized Transparency",
   "scripts": {
-    "start": "node server.js",
-    "dev": "node server.js",
-    "build": "echo static site, nothing to compile"
+    "build": "node copy-dist.cjs",
+    "start": "node server.js"
   }
 }
