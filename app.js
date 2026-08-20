@@ -9,6 +9,8 @@ const VIDEO = {
   }
 };
 
+const START_VOLUME = 25;
+
 const state = {
   entered: false,
   room: "ring",
@@ -25,10 +27,34 @@ let entropy = 0.13;
 
 const $ = (id) => document.getElementById(id);
 
+function setQuiet(player) {
+  if (!player || !player.setVolume) return;
+  player.setVolume(START_VOLUME);
+  if (state.muted) player.mute();
+  else player.unMute();
+}
+
+function enterFullscreen() {
+  const el = $("cinema");
+  if (!el) return;
+  const req =
+    el.requestFullscreen ||
+    el.webkitRequestFullscreen ||
+    el.msRequestFullscreen;
+  if (req) req.call(el).catch(() => {});
+}
+
+function exitFullscreen() {
+  const doc = document;
+  if (!doc.fullscreenElement && !doc.webkitFullscreenElement) return;
+  const exit = doc.exitFullscreen || doc.webkitExitFullscreen || doc.msExitFullscreen;
+  if (exit) exit.call(doc).catch(() => {});
+}
+
 function setLayerChip() {
   const room = document.getElementById("room-" + state.room);
   const layer = room ? room.dataset.layer : "1";
-  $("layer-chip").textContent = layer === "2" ? "L2 · THE ENGINE" : "L1 · THE CARNIVAL";
+  $("layer-chip").textContent = layer === "2" ? "L2 · THE ENGINE" : "L1 · THE FLOOR";
 }
 
 function showRoom(name) {
@@ -59,20 +85,22 @@ function openCinema(videoId) {
   $("cinema").classList.remove("hidden");
   if (cinemaPlayer && cinemaPlayer.loadVideoById) {
     cinemaPlayer.loadVideoById(state.currentId);
-    cinemaPlayer.unMute();
+    setQuiet(cinemaPlayer);
     cinemaPlayer.playVideo();
   }
+  enterFullscreen();
   updateNow();
 }
 
 function closeCinema() {
   state.cinema = false;
   $("cinema").classList.add("hidden");
+  exitFullscreen();
   if (cinemaPlayer && cinemaPlayer.pauseVideo) cinemaPlayer.pauseVideo();
   if (dockPlayer && dockPlayer.loadVideoById) {
     const t = cinemaPlayer && cinemaPlayer.getCurrentTime ? cinemaPlayer.getCurrentTime() : 0;
     dockPlayer.loadVideoById({ videoId: state.currentId, startSeconds: t });
-    dockPlayer.unMute();
+    setQuiet(dockPlayer);
     dockPlayer.playVideo();
   }
   updateNow();
@@ -82,7 +110,7 @@ function playInDock(videoId) {
   state.currentId = videoId;
   if (dockPlayer && dockPlayer.loadVideoById) {
     dockPlayer.loadVideoById(videoId);
-    dockPlayer.unMute();
+    setQuiet(dockPlayer);
     dockPlayer.playVideo();
   }
   updateNow();
@@ -116,10 +144,21 @@ function toggleDockPlay() {
 window.onYouTubeIframeAPIReady = function () {
   cinemaPlayer = new YT.Player("yt-cinema", {
     videoId: VIDEO.featured,
-    playerVars: { autoplay: 0, controls: 1, rel: 0, modestbranding: 1, playsinline: 1 },
+    playerVars: {
+      autoplay: 0,
+      controls: 1,
+      rel: 0,
+      modestbranding: 1,
+      playsinline: 1,
+      fs: 1
+    },
     events: {
-      onReady: () => { state.ready = true; },
+      onReady: (e) => {
+        state.ready = true;
+        setQuiet(e.target);
+      },
       onStateChange: (e) => {
+        if (e.data === YT.PlayerState.PLAYING) setQuiet(e.target);
         if (e.data === YT.PlayerState.ENDED && state.cinema) closeCinema();
       }
     }
@@ -129,7 +168,9 @@ window.onYouTubeIframeAPIReady = function () {
     videoId: VIDEO.featured,
     playerVars: { autoplay: 0, controls: 0, rel: 0, modestbranding: 1, playsinline: 1 },
     events: {
+      onReady: (e) => setQuiet(e.target),
       onStateChange: (e) => {
+        if (e.data === YT.PlayerState.PLAYING) setQuiet(e.target);
         state.playing = e.data === YT.PlayerState.PLAYING;
         const btn = $("dock-play");
         if (btn) btn.textContent = state.playing ? "PAUSE" : "PLAY";
@@ -150,6 +191,13 @@ $("dock-play").addEventListener("click", toggleDockPlay);
 $("dock-expand").addEventListener("click", () => openCinema(state.currentId));
 $("replay-featured").addEventListener("click", () => playInDock(VIDEO.featured));
 $("map-toggle").addEventListener("click", () => $("minimap").classList.toggle("hidden"));
+
+document.addEventListener("fullscreenchange", () => {
+  if (!document.fullscreenElement && state.cinema) {
+    // user hit Esc in OS fullscreen — drop back to the floor, keep the song
+    closeCinema();
+  }
+});
 
 document.querySelectorAll("[data-room]").forEach((btn) => {
   btn.addEventListener("click", () => showRoom(btn.dataset.room));

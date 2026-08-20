@@ -141,9 +141,32 @@ button { font-family: inherit; cursor: pointer; }
 
 .row { display: flex; gap: 0.7rem; flex-wrap: wrap; margin-top: 1rem; }
 
-#cinema { background: #000; z-index: 30; }
-#yt-cinema { position: absolute; inset: 0; }
-#yt-cinema iframe { width: 100%; height: 100%; }
+#cinema {
+  background: #000;
+  z-index: 30;
+  overflow: hidden;
+}
+#cinema:fullscreen,
+#cinema:-webkit-full-screen {
+  background: #000;
+  width: 100vw;
+  height: 100vh;
+}
+#yt-cinema {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100vw;
+  height: 56.25vw;
+  min-height: 100vh;
+  min-width: 177.78vh;
+  transform: translate(-50%, -50%);
+}
+#yt-cinema iframe {
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
 .cinema-chrome {
   position: absolute; left: 0; right: 0; bottom: 0;
   display: flex; justify-content: space-between; align-items: flex-end;
