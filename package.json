@@ -5,8 +5,8 @@
   "description": "Lladnaros — music-first carnival site. Layer 2 is the engine under the boards.",
   "license": "UNLICENSED",
   "scripts": {
-    "start": "npx --yes serve -s . -l 3000",
-    "dev": "npx --yes serve -s . -l 3000",
+    "start": "node server.js",
+    "dev": "node server.js",
     "build": "echo static site, nothing to compile"
   }
 }
