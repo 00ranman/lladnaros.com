@@ -5,10 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>LLADNAROS</title>
   <meta name="description" content="They want systems. I give them ecosystems." />
-  <meta property="og:title" content="LLADNAROS" />
-  <meta property="og:description" content="They want systems. I give them ecosystems." />
-  <meta property="og:type" content="website" />
-  <meta name="theme-color" content="#05070a" />
+  <meta name="theme-color" content="#070b09" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Anton&family=IBM+Plex+Mono:wght@400;500;600&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
@@ -17,6 +14,7 @@
 <body>
   <div id="noise"></div>
   <div id="scanlines"></div>
+  <div id="chromatic"></div>
 
   <section id="gate" class="screen" aria-label="The gate">
     <div class="gate-vignette"></div>
@@ -31,7 +29,7 @@
       <button id="enter-btn" type="button" class="ticket">
         <span class="ticket-stub">ADMIT ONE</span>
         <span class="ticket-main">ENTER THE RING</span>
-        <span class="ticket-hint">the tape starts · it does not restart</span>
+        <span class="ticket-hint">WASD to walk · E to enter a tent</span>
       </button>
     </div>
   </section>
@@ -41,7 +39,7 @@
     <div class="cinema-chrome">
       <p class="mono">NOW PLAYING · WEAPONIZED TRANSPARENCY</p>
       <div class="cinema-actions">
-        <button id="skip-btn" type="button" class="ghost">WALK THE FLOOR →</button>
+        <button id="skip-btn" type="button" class="ghost">BACK TO THE DIRT →</button>
         <button id="mute-cinema" type="button" class="ghost">MUTE</button>
       </div>
     </div>
@@ -49,39 +47,56 @@
 
   <div id="world" class="hidden">
     <header class="hud">
-      <div class="hud-brand">
-        <button type="button" class="hud-logo" data-room="ring">LLADNAROS</button>
-        <span class="layer-chip" id="layer-chip">L1 · THE FLOOR</span>
-      </div>
-      <nav class="hud-nav" aria-label="Rooms">
-        <button type="button" data-room="ring">THE RING</button>
-        <button type="button" data-room="catalog">CATALOG</button>
-        <button type="button" data-room="notebook">NOTEBOOK</button>
-        <button type="button" data-room="engine">L2 ENGINE</button>
-        <button type="button" data-room="connect">BOX OFFICE</button>
-      </nav>
+      <button type="button" class="hud-logo" id="back-grounds">LLADNAROS</button>
       <div class="hud-meta">
-        <span class="entropy" title="theatrical">ΔS <b id="entropy">0.00</b></span>
-        <button type="button" id="map-toggle" class="ghost sm">MAP</button>
+        <span class="hint-keys">WASD MOVE · E ENTER · ESC BACK</span>
+        <span class="entropy">ΔS <b id="entropy">0.13</b></span>
       </div>
     </header>
 
-    <aside id="minimap" class="minimap hidden" aria-label="Map">
-      <p class="mono">PICK A TENT</p>
-      <button type="button" data-room="ring">① The Ring</button>
-      <button type="button" data-room="catalog">② Catalog</button>
-      <button type="button" data-room="notebook">③ Notebook</button>
-      <button type="button" data-room="engine">④ Layer 2</button>
-      <button type="button" data-room="connect">⑤ Box Office</button>
-      <p class="keys">1–5 rooms · M mute · Esc map</p>
-    </aside>
+    <div id="grounds">
+      <svg class="fair-svg" viewBox="0 0 100 60" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+        <defs>
+          <radialGradient id="fog" cx="50%" cy="70%" r="70%">
+            <stop offset="0%" stop-color="#1a2418" stop-opacity="0"/>
+            <stop offset="100%" stop-color="#050805" stop-opacity=".85"/>
+          </radialGradient>
+        </defs>
+        <rect width="100" height="60" fill="#0a100c"/>
+        <path d="M18 28 L50 6 L82 28 L78 46 L22 46 Z" fill="#1c3a30" stroke="#c4783a" stroke-width=".35"/>
+        <path d="M50 6 L50 46" stroke="#8a4e22" stroke-width=".4"/>
+        <path d="M32 28 L32 46 M68 28 L68 46" stroke="#3f6d59" stroke-width=".25"/>
+        <ellipse cx="50" cy="48" rx="16" ry="4" fill="#14120c" stroke="#c4783a" stroke-width=".15"/>
+        <path d="M6 40 L16 32 L26 40 L24 52 L8 52 Z" fill="#163028" stroke="#c4783a" stroke-width=".3"/>
+        <path d="M74 40 L84 32 L94 40 L92 52 L76 52 Z" fill="#163028" stroke="#c4783a" stroke-width=".3"/>
+        <path d="M2 50 L12 44 L22 50 L20 60 L4 60 Z" fill="#12241e" stroke="#8a4e22" stroke-width=".25"/>
+        <path d="M78 50 L88 44 L98 50 L96 60 L80 60 Z" fill="#12241e" stroke="#8a4e22" stroke-width=".25"/>
+        <rect width="100" height="60" fill="url(#fog)"/>
+      </svg>
+      <div id="ringleader">
+        <img class="idle" alt="" />
+        <img class="alt" alt="" />
+      </div>
+      <button type="button" class="tent" data-room="ring" style="left:50%;top:24%;transform:translate(-50%,0)"><span>01</span><b>THE RING</b></button>
+      <button type="button" class="tent" data-room="catalog" style="left:14%;top:40%"><span>02</span><b>CATALOG</b></button>
+      <button type="button" class="tent" data-room="notebook" style="left:78%;top:40%"><span>03</span><b>NOTEBOOK</b></button>
+      <button type="button" class="tent" data-room="engine" style="left:12%;top:70%"><span>04</span><b>L2 ENGINE</b></button>
+      <button type="button" class="tent" data-room="connect" style="left:76%;top:70%"><span>05</span><b>BOX OFFICE</b></button>
+      <div id="player"></div>
+      <div id="prompt" class="hidden">E · STEP INSIDE</div>
+    </div>
 
-    <main id="rooms">
-      <section class="room" id="room-ring" data-layer="1">
+    <section id="interior" class="hidden">
+      <header>
+        <p class="mono" id="tent-label">INSIDE THE TENT</p>
+        <button type="button" id="leave-tent" class="ghost sm">← THE GROUNDS</button>
+      </header>
+
+      <div class="room" id="room-ring" data-layer="1">
         <div class="room-head">
-          <p class="mono">ROOM 01 · THE RING</p>
+          <p class="mono">THE BIG TOP</p>
           <h2 class="display">HERE’S THE BLUEPRINT.</h2>
-          <p class="lede">Walk the tents. The song stays on. The machinery is one floor down, if you want it.</p>
+          <p class="lede">The song stays on while you walk. The machinery is under the boards.</p>
         </div>
         <div class="feature-grid">
           <article class="poster">
@@ -105,54 +120,20 @@
           <a href="https://open.spotify.com/artist/0A1tRZXeo8dFeEWFycvjUV" target="_blank" rel="noopener">Spotify</a>
           <a href="https://music.apple.com/us/artist/lladnaros/1832295144" target="_blank" rel="noopener">Apple</a>
           <a href="https://www.youtube.com/@Lladnaros" target="_blank" rel="noopener">YouTube</a>
-          <a href="https://music.youtube.com/channel/UC3iGZhDXGibTldct5mwSUVg" target="_blank" rel="noopener">YT Music</a>
-          <a href="https://music.amazon.com/artists/B0FLWNSHT4/lladnaros" target="_blank" rel="noopener">Amazon</a>
         </div>
-      </section>
+      </div>
 
-      <section class="room hidden" id="room-catalog" data-layer="1">
+      <div class="room hidden" id="room-catalog" data-layer="1">
         <div class="room-head">
-          <p class="mono">ROOM 02 · THE CATALOG</p>
-          <h2 class="display">BOOTHS & SIDESHOWS.</h2>
-          <p class="lede">Albums as tents. Singles as barkers. The dock keeps whatever you started.</p>
+          <p class="mono">SIDESHOW TENT</p>
+          <h2 class="display">BOOTHS.</h2>
+          <p class="lede">Albums as tents. The dock keeps whatever you started.</p>
         </div>
         <div class="booths">
-          <article class="booth">
-            <span class="year">2026</span>
-            <h3>The Lladnaros EP</h3>
-            <p>Weaponized Transparency lives here.</p>
-            <ul>
-              <li>And That’s… (How)</li>
-              <li>Power Lunch at the Soup Kitchen</li>
-              <li>Just Another Brick</li>
-              <li>PHOTON_404.exe</li>
-              <li>Weaponized Transparency</li>
-              <li>Unrendered Sky</li>
-            </ul>
-          </article>
-          <article class="booth">
-            <span class="year">2026</span>
-            <h3>Unf*ck the World for a Dollar</h3>
-            <p>18 tracks. Companion to the book. Fungus, not fire.</p>
-            <ul>
-              <li>IYKYDKYDK</li>
-              <li>Δs</li>
-              <li>Solipsism</li>
-              <li>Recursive Until Proven Innocent</li>
-              <li>Family of Fangs</li>
-              <li>Schrödinger’s Flex</li>
-            </ul>
-          </article>
-          <article class="booth">
-            <span class="year">2025</span>
-            <h3>The Glitch Was Me</h3>
-            <p>25 tracks. The mask looking back.</p>
-          </article>
-          <article class="booth">
-            <span class="year">2025</span>
-            <h3>Patterns and Mouth Noises</h3>
-            <p>14 tracks. Consensus hell and syntax sabotage.</p>
-          </article>
+          <article class="booth"><span class="year">2026</span><h3>The Lladnaros EP</h3><p>Weaponized Transparency lives here.</p></article>
+          <article class="booth"><span class="year">2026</span><h3>Unf*ck the World for a Dollar</h3><p>Fungus, not fire.</p></article>
+          <article class="booth"><span class="year">2025</span><h3>The Glitch Was Me</h3><p>The mask looking back.</p></article>
+          <article class="booth"><span class="year">2025</span><h3>Patterns and Mouth Noises</h3><p>Syntax sabotage.</p></article>
         </div>
         <h3 class="subhead">SINGLES ON THE MIDWAY</h3>
         <div class="singles">
@@ -160,119 +141,56 @@
           <button type="button" class="chip" data-yt="LrdUNRrEufw">The Glitch Was Me</button>
           <button type="button" class="chip" data-yt="mK6H0W2syKg">And That’s… (How)</button>
           <button type="button" class="chip" data-yt="WWXGyV5xQSU">Coordinates</button>
-          <span class="chip mute">Inside the Machine</span>
-          <span class="chip mute">Fake Slop</span>
-          <span class="chip mute">Kill the Arc</span>
-          <span class="chip mute">No One’s Lying</span>
-          <span class="chip mute">Clap if You’re Programmed</span>
-          <span class="chip mute">Procedural Ghostride</span>
-          <span class="chip mute">What is God? (Really)</span>
-          <span class="chip mute">Paradox Eater</span>
         </div>
-        <p class="fine">A live chip loads the unofficial video into the dock. Session stays up.</p>
-      </section>
+      </div>
 
-      <section class="room hidden" id="room-notebook" data-layer="1">
+      <div class="room hidden" id="room-notebook" data-layer="1">
         <div class="room-head">
-          <p class="mono">ROOM 03 · THE NOTEBOOK</p>
+          <p class="mono">THE BACK TENT</p>
           <h2 class="display">RECEIPTS AND A TIMESTAMP.</h2>
-          <p class="lede">Instruction manual disguised as a poem. The book is the field guide. The music is the tape.</p>
         </div>
         <article class="book-card">
           <p class="mono">THE BOOK</p>
           <h3>Unf*ck the World for a Dollar</h3>
           <p class="quote">They want fire. I bring fungus.</p>
-          <p>Free to read. Honor system. If it hits, tip what it’s worth.</p>
           <div class="row">
             <a class="ticket sm" href="https://lladnaros.com/docs/Unfuck_The_World_For_A_Dollar.pdf" target="_blank" rel="noopener">READ THE PDF</a>
             <a class="ghost sm" href="https://cash.app/$00nerd/1" target="_blank" rel="noopener">TIP $1</a>
           </div>
         </article>
-        <div class="cipher-grid">
-          <blockquote>“You think I’m performing? Fuck yes I am. But this ain’t your TED talk on sterility.”</blockquote>
-          <blockquote>“Secret into a verse with receipts and a timestamp.”</blockquote>
-          <blockquote>“Palm sweaty on the kill code. The performative and the authentic — they’re not opposites.”</blockquote>
-          <blockquote>“Systems built to survive screw anyone the one they can’t kill.”</blockquote>
-        </div>
-      </section>
+      </div>
 
-      <section class="room hidden" id="room-engine" data-layer="2">
+      <div class="room hidden" id="room-engine" data-layer="2">
         <div class="room-head">
-          <p class="mono">ROOM 04 · LAYER 2 · UNDER THE BOARDS</p>
+          <p class="mono">UNDER THE BOARDS</p>
           <h2 class="display">THE FLOOR IS STILL THERE.</h2>
-          <p class="lede">Verified entropy reduction as the basis of value. Descend only if you want the machinery.</p>
-        </div>
-        <div class="proof">
-          <div>
-            <p class="mono">LAYER 1 · OBSERVABLE NOW</p>
-            <ul>
-              <li>Three studio albums + singles on every major platform</li>
-              <li>This site</li>
-              <li>Book: Unf*ck the World for a Dollar</li>
-              <li>Extropy Codex + published papers</li>
-              <li>GitHub: <a href="https://github.com/00ranman/extropy-engine" target="_blank" rel="noopener">extropy-engine</a></li>
-            </ul>
-          </div>
-          <div>
-            <p class="mono">LAYER 2 · IN BUILD</p>
-            <ul>
-              <li>XP-Net · entropy-anchored DAG governance</li>
-              <li>Universal Times · hydrogen-anchored clocks</li>
-              <li>HomeFlow · household as physics problem</li>
-              <li>LevelUp Academy · learning with ΔS rewards</li>
-              <li>Extropialingo · gamified language</li>
-            </ul>
-          </div>
         </div>
         <div class="suite">
-          <a class="tile live" href="https://extropyengine.com" target="_blank" rel="noopener">
-            <span>LIVE</span>
-            <strong>Extropy Engine</strong>
-            <em>Value = verified entropy reduction.</em>
-          </a>
-          <a class="tile" href="https://lladnaros.com/universaltimes.html" target="_blank" rel="noopener">
-            <span>DEV</span>
-            <strong>Universal Times</strong>
-            <em>Dual-system timekeeping.</em>
-          </a>
-          <a class="tile" href="https://github.com/00ranman" target="_blank" rel="noopener">
-            <span>SRC</span>
-            <strong>The Repos</strong>
-            <em>00ranman</em>
-          </a>
-          <a class="tile" href="https://www.academia.edu" target="_blank" rel="noopener">
-            <span>PAPERS</span>
-            <strong>Academia</strong>
-            <em>Codex, DAG, GUT.</em>
-          </a>
+          <a class="tile live" href="https://extropyengine.com" target="_blank" rel="noopener"><span>LIVE</span><strong>Extropy Engine</strong></a>
+          <a class="tile" href="https://github.com/00ranman" target="_blank" rel="noopener"><span>SRC</span><strong>The Repos</strong></a>
         </div>
-        <p class="fine">Old proof-layer page still lives at <a href="https://lladnaros.com/proof-layers.html">/proof-layers.html</a> until this swallows it.</p>
-      </section>
+      </div>
 
-      <section class="room hidden" id="room-connect" data-layer="1">
+      <div class="room hidden" id="room-connect" data-layer="1">
         <div class="room-head">
-          <p class="mono">ROOM 05 · BOX OFFICE</p>
+          <p class="mono">TICKET WAGON</p>
           <h2 class="display">NO SCHEDULE. JUST THE DROP.</h2>
-          <p class="lede">I move when I see the opening. Follow everywhere. Catch it when it hits.</p>
         </div>
         <div class="connect-grid">
           <a href="https://x.com/lladnaros" target="_blank" rel="noopener">X · @lladnaros</a>
           <a href="https://www.youtube.com/@Lladnaros" target="_blank" rel="noopener">YouTube</a>
           <a href="https://open.spotify.com/artist/0A1tRZXeo8dFeEWFycvjUV" target="_blank" rel="noopener">Spotify</a>
-          <a href="https://github.com/00ranman" target="_blank" rel="noopener">GitHub · 00ranman</a>
+          <a href="https://github.com/00ranman" target="_blank" rel="noopener">GitHub</a>
           <a href="https://cash.app/$00nerd/1" target="_blank" rel="noopener">Cash App · $00nerd</a>
-          <a href="https://extropyengine.com" target="_blank" rel="noopener">extropyengine.com</a>
         </div>
-      </section>
-    </main>
+      </div>
+    </section>
 
     <footer class="dock" id="dock">
-      <div class="dock-player">
-        <div id="yt-dock"></div>
-      </div>
+      <div class="dock-player"><div id="yt-dock"></div></div>
       <div class="dock-info">
         <p class="mono" id="now-label">NOW · WEAPONIZED TRANSPARENCY</p>
-        <p id="now-sub">does not restart when you change rooms</p>
+        <p id="now-sub">does not restart when you change tents</p>
       </div>
       <div class="dock-controls">
         <button type="button" id="dock-play" class="ghost sm">PAUSE</button>
