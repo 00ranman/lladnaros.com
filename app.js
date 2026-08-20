@@ -34,21 +34,42 @@ function setQuiet(player) {
   else player.unMute();
 }
 
+function currentTime(player) {
+  try {
+    return player && player.getCurrentTime ? player.getCurrentTime() : 0;
+  } catch (e) {
+    return 0;
+  }
+}
+
+function sizeCinema() {
+  if (!cinemaPlayer || !cinemaPlayer.setSize) return;
+  const w = window.innerWidth;
+  const h = window.innerHeight;
+  cinemaPlayer.setSize(w, h);
+  const frame = document.querySelector("#cinema iframe") || $("yt-cinema");
+  if (frame && frame.style) {
+    frame.style.position = "absolute";
+    frame.style.inset = "0";
+    frame.style.width = w + "px";
+    frame.style.height = h + "px";
+    frame.setAttribute("width", String(w));
+    frame.setAttribute("height", String(h));
+  }
+}
+
 function enterFullscreen() {
   const el = $("cinema");
   if (!el) return;
-  const req =
-    el.requestFullscreen ||
-    el.webkitRequestFullscreen ||
-    el.msRequestFullscreen;
-  if (req) req.call(el).catch(() => {});
+  const req = el.requestFullscreen || el.webkitRequestFullscreen || el.msRequestFullscreen;
+  if (req) Promise.resolve(req.call(el)).catch(() => {});
 }
 
 function exitFullscreen() {
   const doc = document;
   if (!doc.fullscreenElement && !doc.webkitFullscreenElement) return;
   const exit = doc.exitFullscreen || doc.webkitExitFullscreen || doc.msExitFullscreen;
-  if (exit) exit.call(doc).catch(() => {});
+  if (exit) Promise.resolve(exit.call(doc)).catch(() => {});
 }
 
 function setLayerChip() {
@@ -79,26 +100,33 @@ function enterWorld() {
   showRoom(["ring", "catalog", "notebook", "engine", "connect"].includes(hash) ? hash : "ring");
 }
 
-function openCinema(videoId) {
+function openCinema() {
+  const t = currentTime(dockPlayer);
   state.cinema = true;
-  state.currentId = videoId || VIDEO.featured;
   $("cinema").classList.remove("hidden");
+  $("cinema").classList.add("is-on");
+  if (dockPlayer && dockPlayer.pauseVideo) dockPlayer.pauseVideo();
   if (cinemaPlayer && cinemaPlayer.loadVideoById) {
-    cinemaPlayer.loadVideoById(state.currentId);
+    cinemaPlayer.loadVideoById({ videoId: state.currentId, startSeconds: t });
     setQuiet(cinemaPlayer);
     cinemaPlayer.playVideo();
   }
-  enterFullscreen();
+  requestAnimationFrame(() => {
+    sizeCinema();
+    enterFullscreen();
+  });
   updateNow();
 }
 
 function closeCinema() {
+  if (!state.cinema) return;
+  const t = currentTime(cinemaPlayer);
   state.cinema = false;
   $("cinema").classList.add("hidden");
+  $("cinema").classList.remove("is-on");
   exitFullscreen();
   if (cinemaPlayer && cinemaPlayer.pauseVideo) cinemaPlayer.pauseVideo();
   if (dockPlayer && dockPlayer.loadVideoById) {
-    const t = cinemaPlayer && cinemaPlayer.getCurrentTime ? cinemaPlayer.getCurrentTime() : 0;
     dockPlayer.loadVideoById({ videoId: state.currentId, startSeconds: t });
     setQuiet(dockPlayer);
     dockPlayer.playVideo();
@@ -106,10 +134,12 @@ function closeCinema() {
   updateNow();
 }
 
-function playInDock(videoId) {
+function playInDock(videoId, startSeconds) {
   state.currentId = videoId;
   if (dockPlayer && dockPlayer.loadVideoById) {
-    dockPlayer.loadVideoById(videoId);
+    const opts = { videoId };
+    if (startSeconds) opts.startSeconds = startSeconds;
+    dockPlayer.loadVideoById(opts);
     setQuiet(dockPlayer);
     dockPlayer.playVideo();
   }
@@ -123,8 +153,7 @@ function updateNow() {
 
 function toggleMute() {
   state.muted = !state.muted;
-  const players = [cinemaPlayer, dockPlayer];
-  players.forEach((p) => {
+  [cinemaPlayer, dockPlayer].forEach((p) => {
     if (!p) return;
     state.muted ? p.mute() : p.unMute();
   });
@@ -144,33 +173,36 @@ function toggleDockPlay() {
 window.onYouTubeIframeAPIReady = function () {
   cinemaPlayer = new YT.Player("yt-cinema", {
     videoId: VIDEO.featured,
+    width: "100%",
+    height: "100%",
     playerVars: {
       autoplay: 0,
       controls: 1,
       rel: 0,
       modestbranding: 1,
       playsinline: 1,
-      fs: 1
+      fs: 0
     },
     events: {
       onReady: (e) => {
         state.ready = true;
         setQuiet(e.target);
-      },
-      onStateChange: (e) => {
-        if (e.data === YT.PlayerState.PLAYING) setQuiet(e.target);
-        if (e.data === YT.PlayerState.ENDED && state.cinema) closeCinema();
+        sizeCinema();
       }
     }
   });
 
   dockPlayer = new YT.Player("yt-dock", {
     videoId: VIDEO.featured,
+    width: 160,
+    height: 90,
     playerVars: { autoplay: 0, controls: 0, rel: 0, modestbranding: 1, playsinline: 1 },
     events: {
-      onReady: (e) => setQuiet(e.target),
+      onReady: (e) => {
+        setQuiet(e.target);
+        if (state.entered) playInDock(state.currentId);
+      },
       onStateChange: (e) => {
-        if (e.data === YT.PlayerState.PLAYING) setQuiet(e.target);
         state.playing = e.data === YT.PlayerState.PLAYING;
         const btn = $("dock-play");
         if (btn) btn.textContent = state.playing ? "PAUSE" : "PLAY";
@@ -181,22 +213,23 @@ window.onYouTubeIframeAPIReady = function () {
 
 $("enter-btn").addEventListener("click", () => {
   enterWorld();
-  openCinema(VIDEO.featured);
+  playInDock(VIDEO.featured);
 });
 
 $("skip-btn").addEventListener("click", closeCinema);
 $("mute-cinema").addEventListener("click", toggleMute);
 $("dock-mute").addEventListener("click", toggleMute);
 $("dock-play").addEventListener("click", toggleDockPlay);
-$("dock-expand").addEventListener("click", () => openCinema(state.currentId));
+$("dock-expand").addEventListener("click", openCinema);
 $("replay-featured").addEventListener("click", () => playInDock(VIDEO.featured));
 $("map-toggle").addEventListener("click", () => $("minimap").classList.toggle("hidden"));
 
+window.addEventListener("resize", () => {
+  if (state.cinema) sizeCinema();
+});
+
 document.addEventListener("fullscreenchange", () => {
-  if (!document.fullscreenElement && state.cinema) {
-    // user hit Esc in OS fullscreen — drop back to the floor, keep the song
-    closeCinema();
-  }
+  if (!document.fullscreenElement && state.cinema) closeCinema();
 });
 
 document.querySelectorAll("[data-room]").forEach((btn) => {
