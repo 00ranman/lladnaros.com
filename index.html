@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>LLADNAROS — Enter the Ring</title>
+  <meta name="description" content="Glitch rap rock as systems theory. Music first. The engine underneath. A carnival you navigate." />
+  <meta property="og:title" content="LLADNAROS — Enter the Ring" />
+  <meta property="og:description" content="They want systems. I give them ecosystems." />
+  <meta property="og:type" content="website" />
+  <meta name="theme-color" content="#05070a" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=IBM+Plex+Mono:wght@400;500;600&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div id="noise"></div>
+  <div id="scanlines"></div>
+
+  <section id="gate" class="screen" aria-label="The gate">
+    <div class="gate-vignette"></div>
+    <div class="gate-eye" aria-hidden="true"></div>
+    <div class="gate-inner">
+      <p class="mono tick">ACCESS NODE · LAYER 0 · NO CREDENTIALS REQUIRED</p>
+      <h1 class="display glitch" data-text="LLADNAROS">LLADNAROS</h1>
+      <p class="tagline">independent researcher · carnival ringleader · glitch rap rock</p>
+      <blockquote class="cipher">
+        They want systems. I give them ecosystems.<br />
+        They want predictability. I give them chaos refined.
+      </blockquote>
+      <button id="enter-btn" type="button" class="ticket">
+        <span class="ticket-stub">ADMIT ONE</span>
+        <span class="ticket-main">ENTER THE RING</span>
+        <span class="ticket-hint">video starts · you stay in control</span>
+      </button>
+      <p class="fine">This is not a TED talk on sterility. It’s a rooftop cipher.</p>
+    </div>
+  </section>
+
+  <section id="cinema" class="screen hidden" aria-label="Weaponized Transparency">
+    <div id="yt-cinema"></div>
+    <div class="cinema-chrome">
+      <p class="mono">NOW PLAYING · WEAPONIZED TRANSPARENCY</p>
+      <div class="cinema-actions">
+        <button id="skip-btn" type="button" class="ghost">SKIP INTO THE CARNIVAL →</button>
+        <button id="mute-cinema" type="button" class="ghost">MUTE</button>
+      </div>
+    </div>
+  </section>
+
+  <div id="world" class="hidden">
+    <header class="hud">
+      <div class="hud-brand">
+        <button type="button" class="hud-logo" data-room="ring">LLADNAROS</button>
+        <span class="layer-chip" id="layer-chip">L1 · THE CARNIVAL</span>
+      </div>
+      <nav class="hud-nav" aria-label="Rooms">
+        <button type="button" data-room="ring">THE RING</button>
+        <button type="button" data-room="catalog">CATALOG</button>
+        <button type="button" data-room="notebook">NOTEBOOK</button>
+        <button type="button" data-room="engine">L2 ENGINE</button>
+        <button type="button" data-room="connect">BOX OFFICE</button>
+      </nav>
+      <div class="hud-meta">
+        <span class="entropy" title="theatrical, not a real metric">ΔS <b id="entropy">0.00</b></span>
+        <button type="button" id="map-toggle" class="ghost sm">MAP</button>
+      </div>
+    </header>
+
+    <aside id="minimap" class="minimap hidden" aria-label="Map">
+      <p class="mono">NAVIGATION · PICK A TENT</p>
+      <button type="button" data-room="ring">① The Ring — stage & current drop</button>
+      <button type="button" data-room="catalog">② Catalog — albums as booths</button>
+      <button type="button" data-room="notebook">③ Notebook — book, cipher, receipts</button>
+      <button type="button" data-room="engine">④ Layer 2 — the system under the floorboards</button>
+      <button type="button" data-room="connect">⑤ Box Office — follow, tip, source</button>
+      <p class="keys">keys: 1–5 rooms · M mute · Esc map</p>
+    </aside>
+
+    <main id="rooms">
+      <section class="room" id="room-ring" data-layer="1">
+        <div class="room-head">
+          <p class="mono">ROOM 01 · THE RING</p>
+          <h2 class="display">MUSIC FIRST.</h2>
+          <p class="lede">The carnival is the product. The engine is the floor. Walk the tents. The song does not restart.</p>
+        </div>
+        <div class="feature-grid">
+          <article class="poster">
+            <p class="mono">FEATURED DROP</p>
+            <h3>Weaponized Transparency</h3>
+            <p>When they hide behind shadows, I step into the sun and say: here’s the blueprint. Try me.</p>
+            <div class="row">
+              <button type="button" class="ticket sm" id="replay-featured">PLAY IN THE DOCK</button>
+              <a class="ghost sm" href="https://www.youtube.com/watch?v=70jZG8p1h1w" target="_blank" rel="noopener">OPEN ON YOUTUBE</a>
+            </div>
+          </article>
+          <article class="poster dim">
+            <p class="mono">LATEST EP</p>
+            <h3>The Lladnaros EP</h3>
+            <p>2026 · seven songs · the ringleader cut. And That’s… (How), PHOTON_404.exe, Unrendered Sky.</p>
+            <a class="ghost sm" href="https://music.apple.com/us/album/the-lladnaros-ep/6786489841" target="_blank" rel="noopener">LISTEN</a>
+          </article>
+        </div>
+        <div class="stream-bar">
+          <span class="mono">STREAM THE BODY OF WORK</span>
+          <a href="https://open.spotify.com/artist/0A1tRZXeo8dFeEWFycvjUV" target="_blank" rel="noopener">Spotify</a>
+          <a href="https://music.apple.com/us/artist/lladnaros/1832295144" target="_blank" rel="noopener">Apple</a>
+          <a href="https://www.youtube.com/@Lladnaros" target="_blank" rel="noopener">YouTube</a>
+          <a href="https://music.youtube.com/channel/UC3iGZhDXGibTldct5mwSUVg" target="_blank" rel="noopener">YT Music</a>
+          <a href="https://music.amazon.com/artists/B0FLWNSHT4/lladnaros" target="_blank" rel="noopener">Amazon</a>
+        </div>
+        <p class="bio">This isn’t music: it’s systems theory in disguise. Each track is a recursive loop engineered to expose the glitch in the consensus monkey brain. I’m Randall Gossett — Lladnaros — architect of antifragile systems, barking through a leather jacket.</p>
+      </section>
+
+      <section class="room hidden" id="room-catalog" data-layer="1">
+        <div class="room-head">
+          <p class="mono">ROOM 02 · THE CATALOG</p>
+          <h2 class="display">BOOTHS &amp; SIDESHOWS.</h2>
+          <p class="lede">Albums are tents. Singles are barkers. Click a booth. Leave when you want. The dock keeps the current act alive.</p>
+        </div>
+        <div class="booths">
+          <article class="booth">
+            <span class="year">2026</span>
+            <h3>The Lladnaros EP</h3>
+            <p>The official ringleader set. Weaponized Transparency lives here.</p>
+            <ul>
+              <li>And That’s… (How)</li>
+              <li>Power Lunch at the Soup Kitchen</li>
+              <li>Just Another Brick</li>
+              <li>PHOTON_404.exe</li>
+              <li>Weaponized Transparency</li>
+              <li>Unrendered Sky</li>
+            </ul>
+          </article>
+          <article class="booth">
+            <span class="year">2026</span>
+            <h3>Unf*ck the World for a Dollar</h3>
+            <p>18 tracks. The album companion to the book. Fungus, not fire.</p>
+            <ul>
+              <li>IYKYDKYDK</li>
+              <li>Δs</li>
+              <li>Solipsism</li>
+              <li>Recursive Until Proven Innocent</li>
+              <li>Family of Fangs</li>
+              <li>Schrödinger’s Flex</li>
+            </ul>
+          </article>
+          <article class="booth">
+            <span class="year">2025</span>
+            <h3>The Glitch Was Me</h3>
+            <p>25 tracks. Origin story in glitch form. The mask looking back.</p>
+          </article>
+          <article class="booth">
+            <span class="year">2025</span>
+            <h3>Patterns and Mouth Noises</h3>
+            <p>14 tracks. Consensus hell and syntax sabotage.</p>
+          </article>
+        </div>
+        <h3 class="subhead">SINGLES ON THE MIDWAY</h3>
+        <div class="singles">
+          <button type="button" class="chip" data-yt="HddQkXc5mSQ">The F U Internet Engine</button>
+          <button type="button" class="chip" data-yt="LrdUNRrEufw">The Glitch Was Me</button>
+          <button type="button" class="chip" data-yt="mK6H0W2syKg">And That’s… (How)</button>
+          <button type="button" class="chip" data-yt="WWXGyV5xQSU">Coordinates</button>
+          <span class="chip mute">Inside the Machine</span>
+          <span class="chip mute">Fake Slop</span>
+          <span class="chip mute">Kill the Arc</span>
+          <span class="chip mute">No One’s Lying</span>
+          <span class="chip mute">Clap if You’re Programmed</span>
+          <span class="chip mute">Procedural Ghostride</span>
+          <span class="chip mute">What is God? (Really)</span>
+          <span class="chip mute">Paradox Eater</span>
+        </div>
+        <p class="fine">Chips with a pulse load the unofficial video into the dock without killing the session.</p>
+      </section>
+
+      <section class="room hidden" id="room-notebook" data-layer="1">
+        <div class="room-head">
+          <p class="mono">ROOM 03 · THE NOTEBOOK</p>
+          <h2 class="display">BLUEPRINT IN A NOTEBOOK.</h2>
+          <p class="lede">An instruction manual disguised as a poem. The book is the field guide. The music is the soundtrack.</p>
+        </div>
+        <article class="book-card">
+          <p class="mono">THE BOOK</p>
+          <h3>Unf*ck the World for a Dollar</h3>
+          <p class="quote">They want fire. I bring fungus.</p>
+          <p>A field manual for surviving a glitched culture without losing your mind, your ethics, or your sense of humor. Free to read — honor system. If it hits, tip what it’s worth.</p>
+          <div class="row">
+            <a class="ticket sm" href="https://lladnaros.com/docs/Unfuck_The_World_For_A_Dollar.pdf" target="_blank" rel="noopener">READ THE PDF</a>
+            <a class="ghost sm" href="https://cash.app/$00nerd/1" target="_blank" rel="noopener">TIP $1</a>
+          </div>
+        </article>
+        <div class="cipher-grid">
+          <blockquote>“You think I’m performing? Fuck yes I am. But this ain’t your TED talk on sterility.”</blockquote>
+          <blockquote>“Secret into a verse with receipts and a timestamp.”</blockquote>
+          <blockquote>“Palm sweaty on the kill code. The performative and the authentic — they’re not opposites.”</blockquote>
+          <blockquote>“Systems built to survive screw anyone the one they can’t kill.”</blockquote>
+        </div>
+      </section>
+
+      <section class="room hidden" id="room-engine" data-layer="2">
+        <div class="room-head">
+          <p class="mono">ROOM 04 · LAYER 2 · UNDER THE BOARDS</p>
+          <h2 class="display">THE SYSTEM IS STILL HERE.</h2>
+          <p class="lede">You came for the music. The floor is thermodynamics. Verified entropy reduction as the sole basis of value. Hover a tile. Descend only if you want the machinery.</p>
+        </div>
+        <div class="proof">
+          <div>
+            <p class="mono">LAYER 1 · OBSERVABLE NOW</p>
+            <ul>
+              <li>Three studio albums + singles on every major platform</li>
+              <li>This site — the carnival interface</li>
+              <li>Book: Unf*ck the World for a Dollar</li>
+              <li>Extropy Codex + published papers</li>
+              <li>GitHub source: <a href="https://github.com/00ranman/extropy-engine" target="_blank" rel="noopener">extropy-engine</a></li>
+            </ul>
+          </div>
+          <div>
+            <p class="mono">LAYER 2 · IN BUILD</p>
+            <ul>
+              <li>XP-Net · entropy-anchored DAG governance</li>
+              <li>Universal Times · hydrogen-anchored clocks</li>
+              <li>HomeFlow · household as physics problem</li>
+              <li>LevelUp Academy · learning with ΔS rewards</li>
+              <li>Extropialingo · gamified language</li>
+            </ul>
+          </div>
+        </div>
+        <div class="suite">
+          <a class="tile live" href="https://extropyengine.com" target="_blank" rel="noopener">
+            <span>LIVE</span>
+            <strong>Extropy Engine</strong>
+            <em>The root. Value = verified entropy reduction.</em>
+          </a>
+          <a class="tile" href="https://lladnaros.com/universaltimes.html" target="_blank" rel="noopener">
+            <span>DEV</span>
+            <strong>Universal Times</strong>
+            <em>Dual-system timekeeping. Demo on the old site.</em>
+          </a>
+          <a class="tile" href="https://github.com/00ranman" target="_blank" rel="noopener">
+            <span>SRC</span>
+            <strong>The Repos</strong>
+            <em>00ranman · all the unfinished machinery.</em>
+          </a>
+          <a class="tile" href="https://www.academia.edu" target="_blank" rel="noopener">
+            <span>PAPERS</span>
+            <strong>Academia</strong>
+            <em>Codex, DAG, GUT, God as entropy reduction.</em>
+          </a>
+        </div>
+        <p class="fine">Old proof-layer page still lives at <a href="https://lladnaros.com/proof-layers.html">/proof-layers.html</a> until this carnival swallows it.</p>
+      </section>
+
+      <section class="room hidden" id="room-connect" data-layer="1">
+        <div class="room-head">
+          <p class="mono">ROOM 05 · BOX OFFICE</p>
+          <h2 class="display">NO NEWSLETTER. JUST THE ACT.</h2>
+          <p class="lede">I don’t run on a schedule. I move when I see the opportunity. Follow everywhere. Catch it when it drops.</p>
+        </div>
+        <div class="connect-grid">
+          <a href="https://x.com/lladnaros" target="_blank" rel="noopener">X · @lladnaros</a>
+          <a href="https://www.youtube.com/@Lladnaros" target="_blank" rel="noopener">YouTube</a>
+          <a href="https://open.spotify.com/artist/0A1tRZXeo8dFeEWFycvjUV" target="_blank" rel="noopener">Spotify</a>
+          <a href="https://github.com/00ranman" target="_blank" rel="noopener">GitHub · 00ranman</a>
+          <a href="https://cash.app/$00nerd/1" target="_blank" rel="noopener">Cash App · $00nerd</a>
+          <a href="https://extropyengine.com" target="_blank" rel="noopener">extropyengine.com</a>
+        </div>
+        <p class="bio">Built as a game because menus are how institutions hide. You walk rooms. The song keeps going. The system waits one floor down.</p>
+      </section>
+    </main>
+
+    <footer class="dock" id="dock">
+      <div class="dock-player">
+        <div id="yt-dock"></div>
+      </div>
+      <div class="dock-info">
+        <p class="mono" id="now-label">NOW · WEAPONIZED TRANSPARENCY</p>
+        <p id="now-sub">Un-official music video · does not restart on room change</p>
+      </div>
+      <div class="dock-controls">
+        <button type="button" id="dock-play" class="ghost sm">PAUSE</button>
+        <button type="button" id="dock-mute" class="ghost sm">MUTE</button>
+        <button type="button" id="dock-expand" class="ghost sm">CINEMA</button>
+      </div>
+    </footer>
+  </div>
+
+  <script src="https://www.youtube.com/iframe_api"></script>
+  <script src="app.js"></script>
+</body>
+</html>
