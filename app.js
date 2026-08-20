@@ -11,14 +11,27 @@ const VIDEO = {
 
 const START_VOLUME = 25;
 
+const TENTS = [
+  { id: "ring", x: 50, y: 28, label: "THE RING" },
+  { id: "catalog", x: 18, y: 44, label: "CATALOG" },
+  { id: "notebook", x: 82, y: 44, label: "NOTEBOOK" },
+  { id: "engine", x: 16, y: 74, label: "L2 ENGINE" },
+  { id: "connect", x: 84, y: 74, label: "BOX OFFICE" }
+];
+
 const state = {
   entered: false,
-  room: "ring",
+  inside: false,
+  room: null,
   cinema: false,
   ready: false,
   muted: false,
   playing: false,
-  currentId: VIDEO.featured
+  currentId: VIDEO.featured,
+  x: 50,
+  y: 62,
+  keys: {},
+  near: null
 };
 
 let cinemaPlayer = null;
@@ -35,60 +48,34 @@ function setQuiet(player) {
 }
 
 function currentTime(player) {
-  try {
-    return player && player.getCurrentTime ? player.getCurrentTime() : 0;
-  } catch (e) {
-    return 0;
-  }
+  try { return player && player.getCurrentTime ? player.getCurrentTime() : 0; }
+  catch (e) { return 0; }
 }
 
 function sizeCinema() {
   if (!cinemaPlayer || !cinemaPlayer.setSize) return;
-  const w = window.innerWidth;
-  const h = window.innerHeight;
-  cinemaPlayer.setSize(w, h);
-  const frame = document.querySelector("#cinema iframe") || $("yt-cinema");
-  if (frame && frame.style) {
-    frame.style.position = "absolute";
-    frame.style.inset = "0";
-    frame.style.width = w + "px";
-    frame.style.height = h + "px";
-    frame.setAttribute("width", String(w));
-    frame.setAttribute("height", String(h));
-  }
+  cinemaPlayer.setSize(window.innerWidth, window.innerHeight);
 }
 
 function enterFullscreen() {
   const el = $("cinema");
-  if (!el) return;
-  const req = el.requestFullscreen || el.webkitRequestFullscreen || el.msRequestFullscreen;
+  const req = el && (el.requestFullscreen || el.webkitRequestFullscreen);
   if (req) Promise.resolve(req.call(el)).catch(() => {});
 }
 
 function exitFullscreen() {
   const doc = document;
   if (!doc.fullscreenElement && !doc.webkitFullscreenElement) return;
-  const exit = doc.exitFullscreen || doc.webkitExitFullscreen || doc.msExitFullscreen;
+  const exit = doc.exitFullscreen || doc.webkitExitFullscreen;
   if (exit) Promise.resolve(exit.call(doc)).catch(() => {});
 }
 
-function setLayerChip() {
-  const room = document.getElementById("room-" + state.room);
-  const layer = room ? room.dataset.layer : "1";
-  $("layer-chip").textContent = layer === "2" ? "L2 · THE ENGINE" : "L1 · THE FLOOR";
-}
-
-function showRoom(name) {
-  state.room = name;
-  document.querySelectorAll(".room").forEach((el) => {
-    el.classList.toggle("hidden", el.id !== "room-" + name);
-  });
-  document.querySelectorAll(".hud-nav button").forEach((btn) => {
-    btn.classList.toggle("active", btn.dataset.room === name);
-  });
-  setLayerChip();
-  history.replaceState(null, "", "#" + name);
-  $("minimap").classList.add("hidden");
+function paintArt() {
+  const src = "img/ringleader.jpg";
+  const idle = document.querySelector("#ringleader img.idle");
+  const alt = document.querySelector("#ringleader img.alt");
+  if (idle) idle.src = src;
+  if (alt) alt.src = src;
 }
 
 function enterWorld() {
@@ -96,26 +83,60 @@ function enterWorld() {
   sessionStorage.setItem("lladnaros-entered", "1");
   $("gate").classList.add("hidden");
   $("world").classList.remove("hidden");
-  const hash = (location.hash || "#ring").slice(1);
-  showRoom(["ring", "catalog", "notebook", "engine", "connect"].includes(hash) ? hash : "ring");
+  leaveTent();
+}
+
+function nearestTent() {
+  let best = null;
+  let bestD = 14;
+  TENTS.forEach((t) => {
+    const d = Math.hypot(state.x - t.x, state.y - t.y);
+    if (d < bestD) { bestD = d; best = t; }
+  });
+  return best;
+}
+
+function pointRingleader(tent) {
+  const el = $("ringleader");
+  if (!el) return;
+  if (!tent) {
+    el.classList.remove("pointing", "point-right");
+    return;
+  }
+  el.classList.add("pointing");
+  el.classList.toggle("point-right", tent.x >= 50);
+}
+
+function enterTent(id) {
+  state.inside = true;
+  state.room = id;
+  $("interior").classList.remove("hidden");
+  document.querySelectorAll("#interior .room").forEach((el) => {
+    el.classList.toggle("hidden", el.id !== "room-" + id);
+  });
+  const tent = TENTS.find((t) => t.id === id);
+  $("tent-label").textContent = tent ? "INSIDE · " + tent.label : "INSIDE";
+  history.replaceState(null, "", "#" + id);
+}
+
+function leaveTent() {
+  state.inside = false;
+  state.room = null;
+  $("interior").classList.add("hidden");
+  history.replaceState(null, "", "#grounds");
 }
 
 function openCinema() {
   const t = currentTime(dockPlayer);
   state.cinema = true;
   $("cinema").classList.remove("hidden");
-  $("cinema").classList.add("is-on");
   if (dockPlayer && dockPlayer.pauseVideo) dockPlayer.pauseVideo();
   if (cinemaPlayer && cinemaPlayer.loadVideoById) {
     cinemaPlayer.loadVideoById({ videoId: state.currentId, startSeconds: t });
     setQuiet(cinemaPlayer);
     cinemaPlayer.playVideo();
   }
-  requestAnimationFrame(() => {
-    sizeCinema();
-    enterFullscreen();
-  });
-  updateNow();
+  requestAnimationFrame(() => { sizeCinema(); enterFullscreen(); });
 }
 
 function closeCinema() {
@@ -123,7 +144,6 @@ function closeCinema() {
   const t = currentTime(cinemaPlayer);
   state.cinema = false;
   $("cinema").classList.add("hidden");
-  $("cinema").classList.remove("is-on");
   exitFullscreen();
   if (cinemaPlayer && cinemaPlayer.pauseVideo) cinemaPlayer.pauseVideo();
   if (dockPlayer && dockPlayer.loadVideoById) {
@@ -131,7 +151,6 @@ function closeCinema() {
     setQuiet(dockPlayer);
     dockPlayer.playVideo();
   }
-  updateNow();
 }
 
 function playInDock(videoId, startSeconds) {
@@ -143,10 +162,6 @@ function playInDock(videoId, startSeconds) {
     setQuiet(dockPlayer);
     dockPlayer.playVideo();
   }
-  updateNow();
-}
-
-function updateNow() {
   const title = VIDEO.titles[state.currentId] || "LLADNAROS";
   $("now-label").textContent = "NOW · " + title;
 }
@@ -164,10 +179,33 @@ function toggleMute() {
   });
 }
 
-function toggleDockPlay() {
-  if (!dockPlayer) return;
-  if (state.playing) dockPlayer.pauseVideo();
-  else dockPlayer.playVideo();
+function loop() {
+  if (state.entered && !state.inside && !state.cinema) {
+    const speed = 0.42;
+    if (state.keys.w || state.keys.arrowup) state.y -= speed;
+    if (state.keys.s || state.keys.arrowdown) state.y += speed;
+    if (state.keys.a || state.keys.arrowleft) state.x -= speed;
+    if (state.keys.d || state.keys.arrowright) state.x += speed;
+    state.x = Math.max(10, Math.min(90, state.x));
+    state.y = Math.max(26, Math.min(82, state.y));
+    $("player").style.left = state.x + "%";
+    $("player").style.top = state.y + "%";
+    const near = nearestTent();
+    state.near = near;
+    document.querySelectorAll(".tent").forEach((btn) => {
+      btn.classList.toggle("hot", !!(near && btn.dataset.room === near.id));
+    });
+    pointRingleader(near);
+    const prompt = $("prompt");
+    if (near) {
+      prompt.classList.remove("hidden");
+      prompt.style.left = state.x + "%";
+      prompt.style.top = state.y + "%";
+    } else {
+      prompt.classList.add("hidden");
+    }
+  }
+  requestAnimationFrame(loop);
 }
 
 window.onYouTubeIframeAPIReady = function () {
@@ -175,21 +213,8 @@ window.onYouTubeIframeAPIReady = function () {
     videoId: VIDEO.featured,
     width: "100%",
     height: "100%",
-    playerVars: {
-      autoplay: 0,
-      controls: 1,
-      rel: 0,
-      modestbranding: 1,
-      playsinline: 1,
-      fs: 0
-    },
-    events: {
-      onReady: (e) => {
-        state.ready = true;
-        setQuiet(e.target);
-        sizeCinema();
-      }
-    }
+    playerVars: { autoplay: 0, controls: 1, rel: 0, modestbranding: 1, playsinline: 1, fs: 0 },
+    events: { onReady: (e) => { state.ready = true; setQuiet(e.target); } }
   });
 
   dockPlayer = new YT.Player("yt-dock", {
@@ -211,6 +236,8 @@ window.onYouTubeIframeAPIReady = function () {
   });
 };
 
+paintArt();
+
 $("enter-btn").addEventListener("click", () => {
   enterWorld();
   playInDock(VIDEO.featured);
@@ -219,35 +246,45 @@ $("enter-btn").addEventListener("click", () => {
 $("skip-btn").addEventListener("click", closeCinema);
 $("mute-cinema").addEventListener("click", toggleMute);
 $("dock-mute").addEventListener("click", toggleMute);
-$("dock-play").addEventListener("click", toggleDockPlay);
+$("dock-play").addEventListener("click", () => {
+  if (!dockPlayer) return;
+  state.playing ? dockPlayer.pauseVideo() : dockPlayer.playVideo();
+});
 $("dock-expand").addEventListener("click", openCinema);
 $("replay-featured").addEventListener("click", () => playInDock(VIDEO.featured));
-$("map-toggle").addEventListener("click", () => $("minimap").classList.toggle("hidden"));
+$("leave-tent").addEventListener("click", leaveTent);
+$("back-grounds").addEventListener("click", leaveTent);
 
-window.addEventListener("resize", () => {
-  if (state.cinema) sizeCinema();
-});
-
-document.addEventListener("fullscreenchange", () => {
-  if (!document.fullscreenElement && state.cinema) closeCinema();
-});
-
-document.querySelectorAll("[data-room]").forEach((btn) => {
-  btn.addEventListener("click", () => showRoom(btn.dataset.room));
+document.querySelectorAll(".tent").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    const t = TENTS.find((x) => x.id === btn.dataset.room);
+    if (t) { state.x = t.x; state.y = t.y + 6; }
+    enterTent(btn.dataset.room);
+  });
 });
 
 document.querySelectorAll(".chip[data-yt]").forEach((chip) => {
   chip.addEventListener("click", () => playInDock(chip.dataset.yt));
 });
 
+window.addEventListener("resize", () => { if (state.cinema) sizeCinema(); });
+document.addEventListener("fullscreenchange", () => {
+  if (!document.fullscreenElement && state.cinema) closeCinema();
+});
+
 document.addEventListener("keydown", (e) => {
-  const map = { "1": "ring", "2": "catalog", "3": "notebook", "4": "engine", "5": "connect" };
-  if (map[e.key]) showRoom(map[e.key]);
-  if (e.key === "m" || e.key === "M") toggleMute();
-  if (e.key === "Escape") {
+  const k = e.key.toLowerCase();
+  state.keys[k] = true;
+  if (["w", "a", "s", "d", "arrowup", "arrowdown", "arrowleft", "arrowright"].includes(k)) e.preventDefault();
+  if ((k === "e" || k === "enter") && state.near && !state.inside && !state.cinema) enterTent(state.near.id);
+  if (k === "m") toggleMute();
+  if (k === "escape") {
     if (state.cinema) closeCinema();
-    else $("minimap").classList.add("hidden");
+    else if (state.inside) leaveTent();
   }
+});
+document.addEventListener("keyup", (e) => {
+  state.keys[e.key.toLowerCase()] = false;
 });
 
 setInterval(() => {
@@ -257,6 +294,5 @@ setInterval(() => {
   if (el) el.textContent = entropy.toFixed(2);
 }, 900);
 
-if (sessionStorage.getItem("lladnaros-entered") === "1") {
-  enterWorld();
-}
+if (sessionStorage.getItem("lladnaros-entered") === "1") enterWorld();
+requestAnimationFrame(loop);
